@@ -5,23 +5,25 @@ import os
 import datetime
 
 
-HOME_URL = 'https://www.larepublica.co/'
+HOME_URL = 'https://www.larepublica.co'
 
-XPATH_LINK_TO_ARTICULO = '//h2[@class="headline"]/a/@href'
+XPATH_LINK_TO_ARTICULO = '//a[contains(@class, "kicker")]/@href'
 XPATH_TITLE = '//h2/span/text()'
 XPATH_SUMMARY = '//div[@class="lead"]/p/text()'
-XPATH_BODY = '//div[@class="html-content"]/p[not(@class)]/text()'
+XPATH_BODY = '//div[@class="html-content"]/p//text()'
 
 
 def parse_notice(link, today):
+    
     try:
-        reponse = requests.get(link)
-        if reponse.status_code == 200:
-            notice = reponse.content.decode('utf-8')
+        response = requests.get(link)
+        if response.status_code == 200:
+            notice = response.content.decode('utf-8')
             parsed = html.fromstring(notice)
 
             try:
                 title = parsed.xpath(XPATH_TITLE)[0]
+                print(title)
                 title = title.replace('\"', '')
                 summary = parsed.xpath(XPATH_SUMMARY)[0]
                 body = parsed.xpath(XPATH_BODY)
@@ -50,7 +52,6 @@ def parse_home():
             home = response.content.decode('utf-8')
             parsed = html.fromstring(home)
             link_to_notices = parsed.xpath(XPATH_LINK_TO_ARTICULO)
-            # print(link_to_notices)
 
             today = datetime.date.today().strftime('%d-%m-%Y')
             if not os.path.isdir(today):
